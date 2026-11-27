@@ -13,6 +13,7 @@ Setiap respons `Inertia::render(...)` secara otomatis menyertakan objek `props` 
   "auth": {
     "user": {
       "id": "uuid",
+      "username": "admin_atau_null",
       "email": "user@example.com",
       "full_name": "Nama Pengguna",
       "role": "learner | validator | admin",
@@ -49,7 +50,7 @@ Setiap respons `Inertia::render(...)` secara otomatis menyertakan objek `props` 
 | ----- | ----- | ----- | ----- | ----- | 
 | `GET` | `/` | `welcome` | `WelcomeController@index` | Render `Welcome.jsx` | 
 | `GET` | `/login` | `login` | `Auth\LoginController@create` | Render `Auth/Login.jsx` | 
-| `POST` | `/login` | `login.store` | `Auth\LoginController@store` | Payload: `{ email, password, remember }`. Redirect sesuai peran (`/learner`, `/validator`, `/admin`). | 
+| `POST` | `/login` | `login.store` | `Auth\LoginController@store` | Payload: `{ login, password, remember }` (`login` menerima email atau username). Redirect sesuai peran (`/learner`, `/validator`, `/admin`). | 
 | `GET` | `/register` | `register` | `Auth\RegisterController@create` | Render `Auth/Register.jsx` | 
 | `POST` | `/register` | `register.store` | `Auth\RegisterController@store` | Payload: `{ full_name, email, password, password_confirmation }`. Server menetapkan `role = 'learner'` & membuka Unit 1. | 
 | `POST` | `/logout` | `logout` | `Auth\LogoutController@destroy` | Menghapus sesi, regenerasi token CSRF, redirect ke `/`. | 
@@ -124,7 +125,7 @@ Setiap respons `Inertia::render(...)` secara otomatis menyertakan objek `props` 
 | `POST` | `/admin/quizzes/{quiz}/submit-review` | `admin.quizzes.submit-review` | Memvalidasi jumlah soal ($15 \le n \le 20$) dan kelengkapan `primary_lesson_id`, lalu mengubah status ke `pending_review`. | 
 | `POST` | `/admin/quizzes/{quiz}/publish` | `admin.quizzes.publish` | Menerbitkan quiz unit (hanya jika status `approved`). | 
 | `GET` | `/admin/validators` | `admin.validators.index` | Render `Admin/Validators.jsx`. Props: `validators[]`. | 
-| `POST` | `/admin/validators` | `admin.validators.store` | Membuat akun Validator baru. Payload: `{ full_name, email, password }`. | 
+| `POST` | `/admin/validators` | `admin.validators.store` | Membuat akun Validator baru. Payload: `{ full_name, username, email?, password }`. | 
 | `PATCH` | `/admin/validators/{profile}/toggle-status` | `admin.validators.toggle` | Mengaktifkan atau menonaktifkan akun Validator (`is_active`). | 
 
 ## 6. Spesifikasi Rute Mode Pratinjau (`middleware: ['auth', 'role:admin,validator']`)

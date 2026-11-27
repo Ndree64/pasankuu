@@ -18,13 +18,14 @@ class ValidatorManagementController extends Controller
 {
     public function index(): Response
     {
-        $validators = Profile::with('user:id,email')
+        $validators = Profile::with('user:id,username,email')
             ->where('role', UserRole::Validator)
             ->orderByDesc('created_at')
             ->get()
             ->map(fn (Profile $profile) => [
                 'id' => $profile->id,
                 'full_name' => $profile->full_name,
+                'username' => $profile->user?->username,
                 'email' => $profile->user?->email,
                 'is_active' => $profile->is_active,
                 'created_at' => $profile->created_at?->toDateTimeString(),
@@ -37,15 +38,22 @@ class ValidatorManagementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'username' => strtolower(trim((string) $request->input('username', ''))),
+            'email' => $request->filled('email') ? strtolower(trim((string) $request->input('email'))) : null,
+        ]);
+
         $validated = $request->validate([
             'full_name' => ['required', 'string', 'max:150'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'username' => ['required', 'string', 'min:3', 'max:50', 'regex:/^[a-z0-9._-]+$/', 'unique:users,username'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', Password::min(8)],
         ]);
 
         DB::transaction(function () use ($validated) {
             $user = User::create([
-                'email' => strtolower($validated['email']),
+                'username' => $validated['username'],
+                'email' => $validated['email'] ?? null,
                 'password' => Hash::make($validated['password']),
             ]);
 

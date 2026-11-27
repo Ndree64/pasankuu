@@ -195,10 +195,11 @@ database/
 │   ├── 2026_01_01_000001_create_profiles_table.php                     # Tabel profiles (peran RBAC & is_active)
 │   ├── 2026_01_01_000002_create_curriculum_tables.php                  # Tabel units, lessons, lesson_activities, lesson_materials, vocabularies, material_vocabularies, material_examples
 │   ├── 2026_01_01_000003_create_questions_and_quizzes_tables.php       # Tabel lesson_questions, lesson_question_answer_keys, unit_quizzes, quiz_questions, quiz_question_answer_keys, content_reviews
-│   └── 2026_01_01_000004_create_learning_and_gamification_tables.php   # Tabel unit_unlocks, learner_lesson_progress, quiz_attempts, quiz_responses, remedial_assignments, lesson_activity_progress, lesson_attempts, lesson_responses, xp_transactions, badges, user_badges
+│   ├── 2026_01_01_000004_create_learning_and_gamification_tables.php   # Tabel unit_unlocks, learner_lesson_progress, quiz_attempts, quiz_responses, remedial_assignments, lesson_activity_progress, lesson_attempts, lesson_responses, xp_transactions, badges, user_badges
+│   └── 2026_01_02_000001_add_username_to_users_table.php               # Tambah kolom username unik & ubah email nullable pada tabel users
 └── seeders/
     ├── DatabaseSeeder.php              # Pemanggil utama InitialAdminSeeder, InitialCurriculumSeeder, BadgeSeeder
-    ├── InitialAdminSeeder.php          # Membuat akun admin@pasanku.test & validator@pasanku.test
+    ├── InitialAdminSeeder.php          # Membuat akun admin (username: admin) & validator (username: validator)
     ├── InitialCurriculumSeeder.php     # Membuat 5 Unit (published), 25 shell Lesson (draft), 5 shell UnitQuiz (draft)
     └── BadgeSeeder.php                 # Mengisi 5 lencana pencapaian (first_lesson s.d. curriculum_master)
 ```

@@ -39,32 +39,47 @@ test('public registration always assigns learner role, ignores forged role input
     expect(UnitUnlock::where('user_id', $profile->id)->where('unit_id', $unit1->id)->exists())->toBeTrue();
 });
 
-test('login redirects each role to its dashboard and rejects inactive accounts', function () {
-    $this->seed(InitialAdminSeeder::class);
+test('login accepts username for admin/validator and email for learner, redirecting per role and rejecting inactive accounts', function () {
+    $this->seed([InitialAdminSeeder::class, InitialCurriculumSeeder::class]);
 
     $this->post('/login', [
-        'email' => 'admin@pasanku.test',
+        'login' => 'admin',
         'password' => 'password123',
     ])->assertRedirect(route('admin.dashboard'));
 
     $this->post('/logout')->assertRedirect(route('welcome'));
 
     $this->post('/login', [
-        'email' => 'validator@pasanku.test',
+        'login' => 'validator',
         'password' => 'password123',
     ])->assertRedirect(route('validator.queue'));
 
     $this->post('/logout');
 
-    $validator = User::where('email', 'validator@pasanku.test')->firstOrFail();
+    $validator = User::where('username', 'validator')->firstOrFail();
     $validator->profile->update(['is_active' => false]);
 
     $this->post('/login', [
-        'email' => 'validator@pasanku.test',
+        'login' => 'validator',
         'password' => 'password123',
-    ])->assertSessionHasErrors('email');
+    ])->assertSessionHasErrors('login');
 
     $this->assertGuest();
+
+    // Learner registers with email and logs back in with email
+    $this->post('/register', [
+        'full_name' => 'Siswa Email',
+        'email' => 'siswa_email@example.com',
+        'password' => 'password123',
+        'password_confirmation' => 'password123',
+    ])->assertRedirect(route('learner.home'));
+
+    $this->post('/logout');
+
+    $this->post('/login', [
+        'login' => 'siswa_email@example.com',
+        'password' => 'password123',
+    ])->assertRedirect(route('learner.home'));
 });
 
 test('cross-role routes return 403 forbidden', function () {

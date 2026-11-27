@@ -103,11 +103,11 @@ Akses aplikasi di `http://127.0.0.1:8000`.
 
 Seeder `InitialAdminSeeder`, `InitialCurriculumSeeder`, dan `BadgeSeeder` membuat akun serta kerangka awal kurikulum (5 Unit `published`, 25 shell Lesson `draft`, 5 shell Quiz `draft` tanpa materi kosakata awal, dan 5 Badge):
 
-| Peran | Email | Kata Sandi | Rute Awal |
+| Peran | Login (Username / Email) | Kata Sandi | Rute Awal |
 | --- | --- | --- | --- |
-| **Admin** | `admin@pasanku.test` | `password123` | `/admin` |
-| **Validator** | `validator@pasanku.test` | `password123` | `/validator` |
-| **Learner** | Daftar mandiri lewat `/register` | *(pilihan pengguna)* | `/learner` |
+| **Admin** | `admin` *(username)* | `password123` | `/admin` |
+| **Validator** | `validator` *(username)* | `password123` | `/validator` |
+| **Learner** | Daftar mandiri lewat `/register` *(email)* | *(pilihan pengguna)* | `/learner` |
 
 ---
 

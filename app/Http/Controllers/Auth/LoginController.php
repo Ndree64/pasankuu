@@ -22,20 +22,27 @@ class LoginController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
-        $throttleKey = Str::transliterate(Str::lower($request->string('email')).'|'.$request->ip());
+        $loginInput = Str::lower(trim($request->string('login')->toString()));
+        $throttleKey = Str::transliterate($loginInput.'|'.$request->ip());
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             throw ValidationException::withMessages([
-                'email' => "Terlalu banyak percobaan masuk. Coba lagi dalam {$seconds} detik.",
+                'login' => "Terlalu banyak percobaan masuk. Coba lagi dalam {$seconds} detik.",
             ]);
         }
 
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $field = str_contains($loginInput, '@') ? 'email' : 'username';
+        $credentials = [
+            $field => $loginInput,
+            'password' => $request->string('password')->toString(),
+        ];
+
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);
 
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi tidak sesuai.',
+                'login' => 'Email/username atau kata sandi tidak sesuai.',
             ]);
         }
 
@@ -48,7 +55,7 @@ class LoginController extends Controller
             $request->session()->regenerateToken();
 
             throw ValidationException::withMessages([
-                'email' => 'Email atau kata sandi tidak sesuai, atau akun sedang dinonaktifkan.',
+                'login' => 'Email/username atau kata sandi tidak sesuai, atau akun sedang dinonaktifkan.',
             ]);
         }
 

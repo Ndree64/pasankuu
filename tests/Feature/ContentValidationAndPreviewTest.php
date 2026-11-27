@@ -18,8 +18,8 @@ use Database\Seeders\InitialCurriculumSeeder;
 test('content follows draft -> pending_review -> changes_requested -> approved -> published lifecycle', function () {
     $this->seed([InitialAdminSeeder::class, InitialCurriculumSeeder::class]);
 
-    $admin = User::where('email', 'admin@pasanku.test')->firstOrFail();
-    $validator = User::where('email', 'validator@pasanku.test')->firstOrFail();
+    $admin = User::where('username', 'admin')->firstOrFail();
+    $validator = User::where('username', 'validator')->firstOrFail();
     $lesson = Lesson::firstOrFail();
 
     // Admin submits for review
@@ -69,7 +69,7 @@ test('content follows draft -> pending_review -> changes_requested -> approved -
 test('preview mode is stateless and writes no learner progress, attempts, remedials, or xp', function () {
     $this->seed([InitialAdminSeeder::class, InitialCurriculumSeeder::class]);
 
-    $validator = User::where('email', 'validator@pasanku.test')->firstOrFail();
+    $validator = User::where('username', 'validator')->firstOrFail();
     $lesson = Lesson::firstOrFail();
     $unit = Unit::findOrFail($lesson->unit_id);
 

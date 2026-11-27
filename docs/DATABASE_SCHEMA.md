@@ -68,7 +68,8 @@ erDiagram
 | Kolom | Tipe Data | Keterangan |
 | --- | --- | --- |
 | `id` | UUID (PK) | Identitas unik akun autentikasi |
-| `email` | VARCHAR(255) UNIQUE | Alamat email login |
+| `username` | VARCHAR(50) UNIQUE NULL | Username login (wajib untuk Admin/Validator, opsional/null untuk Learner) |
+| `email` | VARCHAR(255) UNIQUE NULL | Alamat email login (wajib saat registrasi Learner, opsional untuk Admin/Validator) |
 | `password` | VARCHAR(255) | Hash kata sandi (Bcrypt/Argon2) |
 | `email_verified_at` | TIMESTAMP NULL | Waktu verifikasi email (opsional) |
 | `remember_token` | VARCHAR(100) NULL | Token sesi remember me |

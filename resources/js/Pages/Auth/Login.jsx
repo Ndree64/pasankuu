@@ -6,7 +6,7 @@ import TactileButton from '../../Components/UI/TactileButton';
 
 export default function Login() {
     const { data, setData, post, processing, errors } = useForm({
-        email: '',
+        login: '',
         password: '',
         remember: false,
     });
@@ -35,7 +35,7 @@ export default function Login() {
                             Mari Belajar Pasan!
                         </h1>
                         <p className="text-sm text-ink-soft max-w-xs">
-                            Masuk untuk melanjutkan jalur belajarmu, atau memeriksa dan mengelola kurikulum.
+                            Masuk dengan email (Learner) atau username (Admin dan Validator).
                         </p>
                     </div>
 
@@ -45,28 +45,28 @@ export default function Login() {
                                 Masuk ke Akun Pasanku
                             </h2>
                             <p className="text-sm text-ink-soft mb-6">
-                                Gunakan email dan kata sandi akunmu.
+                                Gunakan email atau username beserta kata sandimu.
                             </p>
 
                             <form onSubmit={handleSubmit} className="space-y-4">
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-semibold text-ink mb-1.5">
-                                        Email
+                                    <label htmlFor="login" className="block text-sm font-semibold text-ink mb-1.5">
+                                        Email atau Username
                                     </label>
                                     <input
-                                        id="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        placeholder="nama@email.com"
-                                        value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        id="login"
+                                        type="text"
+                                        autoComplete="username"
+                                        placeholder="email@contoh.com atau username"
+                                        value={data.login}
+                                        onChange={(e) => setData('login', e.target.value)}
                                         className="w-full h-12 px-3.5 rounded-[12px] border border-border-control bg-surface text-ink text-[15px]"
                                         required
                                     />
-                                    {errors.email && (
+                                    {errors.login && (
                                         <p className="mt-1.5 flex items-center gap-1.5 text-xs font-semibold text-brand">
                                             <AlertCircle className="w-4 h-4 shrink-0" aria-hidden="true" />
-                                            <span>{errors.email}</span>
+                                            <span>{errors.login}</span>
                                         </p>
                                     )}
                                 </div>

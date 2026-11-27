@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 test('admin can build lesson activities, reorder them, manage validators, and version published edits', function () {
     $this->seed([InitialAdminSeeder::class, InitialCurriculumSeeder::class]);
 
-    $admin = User::where('email', 'admin@pasanku.test')->firstOrFail();
+    $admin = User::where('username', 'admin')->firstOrFail();
     $this->actingAs($admin);
 
     $lesson = Lesson::firstOrFail();
@@ -63,12 +63,14 @@ test('admin can build lesson activities, reorder them, manage validators, and ve
 
     $this->post('/admin/validators', [
         'full_name' => 'Validator Baru',
-        'email' => 'valbaru@pasanku.test',
+        'username' => 'validator_baru',
         'password' => 'password123',
     ])->assertRedirect();
 
     $newValidator = Profile::where('full_name', 'Validator Baru')->firstOrFail();
     expect($newValidator->role)->toBe(UserRole::Validator);
+    expect($newValidator->user->username)->toBe('validator_baru');
+    expect($newValidator->user->email)->toBeNull();
     expect($newValidator->is_active)->toBeTrue();
 
     $this->patch("/admin/validators/{$newValidator->id}/toggle-status")->assertRedirect();
@@ -78,7 +80,7 @@ test('admin can build lesson activities, reorder them, manage validators, and ve
 test('admin cannot submit unit quiz for review unless it has 15 to 20 questions mapped to unit lessons', function () {
     $this->seed([InitialAdminSeeder::class, InitialCurriculumSeeder::class]);
 
-    $admin = User::where('email', 'admin@pasanku.test')->firstOrFail();
+    $admin = User::where('username', 'admin')->firstOrFail();
     $this->actingAs($admin);
 
     $unit = Unit::where('order_number', 1)->firstOrFail();

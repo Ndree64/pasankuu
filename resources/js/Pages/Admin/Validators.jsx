@@ -8,6 +8,7 @@ import EmptyState from '../../Components/UI/EmptyState';
 export default function Validators({ validators }) {
     const { data, setData, post, processing, errors, reset } = useForm({
         full_name: '',
+        username: '',
         email: '',
         password: '',
     });
@@ -29,7 +30,7 @@ export default function Validators({ validators }) {
                         Manajemen Akun Validator
                     </h1>
                     <p className="text-sm text-ink-soft mt-1">
-                        Buat akun baru untuk penutur atau ahli Bahasa Pasan, dan atur status aktifnya.
+                        Buat akun Validator menggunakan username agar penutur/ahli bahasa dapat langsung masuk tanpa perlu email khusus.
                     </p>
                 </div>
 
@@ -42,7 +43,7 @@ export default function Validators({ validators }) {
                         <span>Tambah Akun Validator</span>
                     </h2>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label htmlFor="val_name" className="block text-sm font-semibold text-ink mb-1">
                                 Nama Lengkap
@@ -64,17 +65,36 @@ export default function Validators({ validators }) {
                             )}
                         </div>
                         <div>
+                            <label htmlFor="val_username" className="block text-sm font-semibold text-ink mb-1">
+                                Username (huruf kecil, angka, titik, atau garis bawah)
+                            </label>
+                            <input
+                                id="val_username"
+                                type="text"
+                                value={data.username}
+                                onChange={(e) => setData('username', e.target.value)}
+                                placeholder="validator_pasan"
+                                className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
+                                required
+                            />
+                            {errors.username && (
+                                <p className="mt-1 text-xs text-brand flex items-center gap-1">
+                                    <AlertCircle className="w-4 h-4" aria-hidden="true" />
+                                    <span>{errors.username}</span>
+                                </p>
+                            )}
+                        </div>
+                        <div>
                             <label htmlFor="val_email" className="block text-sm font-semibold text-ink mb-1">
-                                Email
+                                Email (opsional)
                             </label>
                             <input
                                 id="val_email"
                                 type="email"
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
-                                placeholder="validator@pasanku.test"
+                                placeholder="Boleh dikosongkan"
                                 className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
-                                required
                             />
                             {errors.email && (
                                 <p className="mt-1 text-xs text-brand flex items-center gap-1">
@@ -126,7 +146,10 @@ export default function Validators({ validators }) {
                             >
                                 <div>
                                     <p className="font-semibold text-ink">{validator.full_name}</p>
-                                    <p className="text-sm text-ink-soft">{validator.email}</p>
+                                    <p className="text-sm text-ink-soft">
+                                        {validator.username ? `@${validator.username}` : '-'}
+                                        {validator.email ? ` | ${validator.email}` : ''}
+                                    </p>
                                 </div>
 
                                 <div className="flex items-center gap-3">

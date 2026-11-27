@@ -14,22 +14,36 @@ class InitialAdminSeeder extends Seeder
     {
         $accounts = [
             [
-                'email' => 'admin@pasanku.test',
+                'username' => 'admin',
+                'legacy_email' => 'admin@pasanku.test',
                 'full_name' => 'Admin Pasanku',
                 'role' => UserRole::Admin,
             ],
             [
-                'email' => 'validator@pasanku.test',
+                'username' => 'validator',
+                'legacy_email' => 'validator@pasanku.test',
                 'full_name' => 'Validator Bahasa Pasan',
                 'role' => UserRole::Validator,
             ],
         ];
 
         foreach ($accounts as $account) {
-            $user = User::firstOrCreate(
-                ['email' => $account['email']],
-                ['password' => Hash::make('password123')]
-            );
+            $user = User::where('username', $account['username'])
+                ->orWhere('email', $account['legacy_email'])
+                ->first();
+
+            if ($user) {
+                $user->update([
+                    'username' => $account['username'],
+                    'email' => null,
+                ]);
+            } else {
+                $user = User::create([
+                    'username' => $account['username'],
+                    'email' => null,
+                    'password' => Hash::make('password123'),
+                ]);
+            }
 
             Profile::updateOrCreate(
                 ['id' => $user->id],
