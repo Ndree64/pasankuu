@@ -3,7 +3,10 @@ import { Head, router } from '@inertiajs/react';
 import { Plus, Send, Globe, RotateCcw, Lock, AlertCircle } from 'lucide-react';
 import AppLayout from '../../Layouts/AppLayout';
 import StatusBadge from '../../Components/UI/StatusBadge';
+import ProgressBar from '../../Components/UI/ProgressBar';
 import TactileButton from '../../Components/UI/TactileButton';
+import EmptyState from '../../Components/UI/EmptyState';
+import QuestionSummary, { questionTypeLabel } from '../../Components/UI/QuestionSummary';
 import QuestionEditor from '../../Components/Admin/QuestionEditor';
 
 export default function Quizzes({ units, selected_unit_id, unit_lessons, selected_quiz }) {
@@ -49,46 +52,55 @@ export default function Quizzes({ units, selected_unit_id, unit_lessons, selecte
 
                 {selected_quiz && (
                     <div className="space-y-5">
-                        <div className="bg-surface border border-border-subtle rounded-[16px] p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="space-y-1">
-                                <div className="flex flex-wrap items-center gap-2">
-                                    <h2 className="font-display text-xl font-bold text-ink">{selected_quiz.title}</h2>
-                                    <StatusBadge status={selected_quiz.status} />
+                        <div className="bg-surface border border-border-subtle rounded-[20px] shadow-focal p-5 space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div className="space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <h2 className="font-display text-xl font-bold text-ink">{selected_quiz.title}</h2>
+                                        <StatusBadge status={selected_quiz.status} />
+                                    </div>
+                                    <p className={`text-sm font-semibold ${isCountValid ? 'text-success' : 'text-brand'}`}>
+                                        Jumlah soal saat ini: {questionCount} / 15 sampai 20 soal
+                                    </p>
                                 </div>
-                                <p className={`text-sm font-semibold ${isCountValid ? 'text-success' : 'text-brand'}`}>
-                                    Jumlah soal saat ini: {questionCount} / 15 sampai 20 soal
-                                </p>
+
+                                <div className="flex flex-wrap gap-2">
+                                    {(selected_quiz.status === 'draft' || selected_quiz.status === 'changes_requested') && (
+                                        <TactileButton
+                                            variant="accent"
+                                            onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/submit-review`)}
+                                        >
+                                            <Send className="w-4 h-4" aria-hidden="true" />
+                                            <span>Ajukan Validasi</span>
+                                        </TactileButton>
+                                    )}
+                                    {selected_quiz.status === 'pending_review' && (
+                                        <TactileButton
+                                            variant="neutral"
+                                            onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/cancel-review`)}
+                                        >
+                                            <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                                            <span>Batalkan Pengajuan</span>
+                                        </TactileButton>
+                                    )}
+                                    {selected_quiz.status === 'approved' && (
+                                        <TactileButton
+                                            variant="success"
+                                            onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/publish`)}
+                                        >
+                                            <Globe className="w-4 h-4" aria-hidden="true" />
+                                            <span>Terbitkan Quiz</span>
+                                        </TactileButton>
+                                    )}
+                                </div>
                             </div>
 
-                            <div className="flex flex-wrap gap-2">
-                                {(selected_quiz.status === 'draft' || selected_quiz.status === 'changes_requested') && (
-                                    <TactileButton
-                                        variant="accent"
-                                        onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/submit-review`)}
-                                    >
-                                        <Send className="w-4 h-4" aria-hidden="true" />
-                                        <span>Ajukan Validasi</span>
-                                    </TactileButton>
-                                )}
-                                {selected_quiz.status === 'pending_review' && (
-                                    <TactileButton
-                                        variant="neutral"
-                                        onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/cancel-review`)}
-                                    >
-                                        <RotateCcw className="w-4 h-4" aria-hidden="true" />
-                                        <span>Batalkan Pengajuan</span>
-                                    </TactileButton>
-                                )}
-                                {selected_quiz.status === 'approved' && (
-                                    <TactileButton
-                                        variant="success"
-                                        onClick={() => router.post(`/admin/quizzes/${selected_quiz.id}/publish`)}
-                                    >
-                                        <Globe className="w-4 h-4" aria-hidden="true" />
-                                        <span>Terbitkan Quiz</span>
-                                    </TactileButton>
-                                )}
-                            </div>
+                            <ProgressBar
+                                value={Math.min(15, questionCount)}
+                                max={15}
+                                tone={isCountValid ? 'success' : 'accent'}
+                                label="Kelengkapan minimal 15 soal Quiz Unit"
+                            />
                         </div>
 
                         {selected_quiz.is_locked && (
@@ -129,50 +141,58 @@ export default function Quizzes({ units, selected_unit_id, unit_lessons, selecte
                             </div>
                         )}
 
-                        <div className="space-y-3">
-                            {selected_quiz.questions.map((q) => (
-                                <div key={q.id} className="bg-surface border border-border-subtle rounded-[16px] p-4 space-y-2">
-                                    <div className="flex flex-wrap items-center justify-between gap-2">
-                                        <div className="text-xs font-bold text-ink-soft">
-                                            Soal #{q.order_number} | {q.question_type} | Sumber: {q.primary_lesson_title} | {q.points} poin
+                        {selected_quiz.questions.length === 0 ? (
+                            <EmptyState
+                                title="Belum ada soal di Quiz Unit ini"
+                                description="Mulai tambahkan soal terstruktur dan petakan masing-masing ke lesson sumber utama untuk rekomendasi remedial."
+                            />
+                        ) : (
+                            <div className="space-y-3">
+                                {selected_quiz.questions.map((q) => (
+                                    <div key={q.id} className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-3">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                            <div className="text-xs font-bold text-ink-soft">
+                                                Soal #{q.order_number} | {questionTypeLabel(q.question_type)} | Sumber: {q.primary_lesson_title} | {q.points} poin
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    type="button"
+                                                    disabled={selected_quiz.is_locked}
+                                                    onClick={() => setEditingId(editingId === q.id ? null : q.id)}
+                                                    className="min-h-11 px-3 rounded-[10px] border border-border-control bg-surface text-xs font-bold"
+                                                >
+                                                    Ubah
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    disabled={selected_quiz.is_locked}
+                                                    onClick={() => router.delete(`/admin/quiz-questions/${q.id}`)}
+                                                    className="min-h-11 px-3 rounded-[10px] bg-brand-tint text-xs font-bold text-brand"
+                                                >
+                                                    Hapus
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2">
-                                            <button
-                                                type="button"
-                                                disabled={selected_quiz.is_locked}
-                                                onClick={() => setEditingId(editingId === q.id ? null : q.id)}
-                                                className="min-h-11 px-3 rounded-[10px] border border-border-control bg-surface text-xs font-bold"
-                                            >
-                                                Ubah
-                                            </button>
-                                            <button
-                                                type="button"
-                                                disabled={selected_quiz.is_locked}
-                                                onClick={() => router.delete(`/admin/quiz-questions/${q.id}`)}
-                                                className="min-h-11 px-3 rounded-[10px] bg-brand-tint text-xs font-bold text-brand"
-                                            >
-                                                Hapus
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <p className="font-semibold text-ink">{q.question_text}</p>
+                                        <p className="font-semibold text-ink">{q.question_text}</p>
+                                        <QuestionSummary question={q} />
 
-                                    {editingId === q.id && (
-                                        <QuestionEditor
-                                            initialQuestion={q}
-                                            unitLessons={unit_lessons}
-                                            disabled={selected_quiz.is_locked}
-                                            onCancel={() => setEditingId(null)}
-                                            onSubmit={(payload) => {
-                                                router.put(`/admin/quiz-questions/${q.id}`, payload, {
-                                                    onSuccess: () => setEditingId(null),
-                                                });
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
+                                        {editingId === q.id && (
+                                            <QuestionEditor
+                                                initialQuestion={q}
+                                                unitLessons={unit_lessons}
+                                                disabled={selected_quiz.is_locked}
+                                                onCancel={() => setEditingId(null)}
+                                                onSubmit={(payload) => {
+                                                    router.put(`/admin/quiz-questions/${q.id}`, payload, {
+                                                        onSuccess: () => setEditingId(null),
+                                                    });
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

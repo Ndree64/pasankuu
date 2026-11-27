@@ -1,6 +1,17 @@
 import React from 'react';
 import { Head, Link } from '@inertiajs/react';
-import { Layers, FileQuestion, Users, Eye, ArrowRight } from 'lucide-react';
+import {
+    Layers,
+    FileQuestion,
+    Users,
+    Eye,
+    ArrowRight,
+    Pencil,
+    Clock,
+    AlertTriangle,
+    Globe,
+    CheckCircle2,
+} from 'lucide-react';
 import AppLayout from '../../Layouts/AppLayout';
 import StatusBadge from '../../Components/UI/StatusBadge';
 import TactileButton from '../../Components/UI/TactileButton';
@@ -8,10 +19,10 @@ import EmptyState from '../../Components/UI/EmptyState';
 
 export default function Dashboard({ pipeline_counts, priority_actions, learner_summary }) {
     const pipelineItems = [
-        { key: 'draft', label: 'Draf', count: pipeline_counts.draft, tone: 'bg-surface border-border-subtle' },
-        { key: 'pending_review', label: 'Menunggu Review', count: pipeline_counts.pending_review, tone: 'bg-accent-tint border-accent-border' },
-        { key: 'changes_requested', label: 'Perlu Revisi', count: pipeline_counts.changes_requested, tone: 'bg-brand-tint border-brand' },
-        { key: 'published', label: 'Terbit', count: pipeline_counts.published, tone: 'bg-success-tint border-success' },
+        { key: 'draft', label: 'Draf', count: pipeline_counts.draft, tone: 'bg-surface border-border-subtle', Icon: Pencil },
+        { key: 'pending_review', label: 'Menunggu Review', count: pipeline_counts.pending_review, tone: 'bg-accent-tint border-accent-border', Icon: Clock },
+        { key: 'changes_requested', label: 'Perlu Revisi', count: pipeline_counts.changes_requested, tone: 'bg-brand-tint border-brand', Icon: AlertTriangle },
+        { key: 'published', label: 'Terbit', count: pipeline_counts.published, tone: 'bg-success-tint border-success', Icon: Globe },
     ];
 
     return (
@@ -36,19 +47,28 @@ export default function Dashboard({ pipeline_counts, priority_actions, learner_s
 
                 {/* Pipeline 4 kolom */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    {pipelineItems.map((item) => (
-                        <div key={item.key} className={`rounded-[16px] border p-4 ${item.tone}`}>
-                            <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">{item.label}</p>
-                            <p className="font-display text-3xl font-bold text-ink mt-1">{item.count}</p>
-                        </div>
-                    ))}
+                    {pipelineItems.map((item) => {
+                        const Icon = item.Icon;
+                        return (
+                            <div key={item.key} className={`rounded-[16px] border p-4 space-y-1 ${item.tone}`}>
+                                <div className="flex items-center justify-between text-ink-soft">
+                                    <span className="text-xs font-bold uppercase tracking-wider">{item.label}</span>
+                                    <Icon className="w-4 h-4 shrink-0" aria-hidden="true" />
+                                </div>
+                                <p className="font-display text-3xl font-bold text-ink">{item.count}</p>
+                            </div>
+                        );
+                    })}
                 </div>
 
                 {pipeline_counts.approved > 0 && (
-                    <div className="bg-success-tint border border-success rounded-[16px] p-4 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-sm font-semibold text-ink">
-                            Ada {pipeline_counts.approved} paket konten berstatus Disetujui Validator yang siap diterbitkan.
-                        </p>
+                    <div className="bg-success-tint border-2 border-success rounded-[16px] p-4 flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 text-sm font-semibold text-ink">
+                            <CheckCircle2 className="w-5 h-5 text-success shrink-0" aria-hidden="true" />
+                            <span>
+                                Ada {pipeline_counts.approved} paket konten berstatus Disetujui Validator yang siap diterbitkan.
+                            </span>
+                        </div>
                         <TactileButton variant="success" href="/admin/units">
                             Kelola Penerbitan
                         </TactileButton>

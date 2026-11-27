@@ -1,19 +1,19 @@
 import React from 'react';
 import { Head, router } from '@inertiajs/react';
-import { Eye } from 'lucide-react';
+import { Eye, Clock, CheckCircle2, AlertTriangle, ClipboardList } from 'lucide-react';
 import AppLayout from '../../Layouts/AppLayout';
 import StatusBadge from '../../Components/UI/StatusBadge';
 import TactileButton from '../../Components/UI/TactileButton';
 import EmptyState from '../../Components/UI/EmptyState';
 
-const TABS = [
-    { key: 'pending', label: 'Menunggu Review' },
-    { key: 'approved', label: 'Disetujui' },
-    { key: 'changes_requested', label: 'Perlu Revisi' },
-    { key: 'all', label: 'Semua' },
-];
-
 export default function ReviewQueue({ counts, reviews, active_filter }) {
+    const tabs = [
+        { key: 'pending', label: `Menunggu Review (${counts.pending})` },
+        { key: 'approved', label: `Disetujui (${counts.approved})` },
+        { key: 'changes_requested', label: `Perlu Revisi (${counts.changes_requested})` },
+        { key: 'all', label: `Semua (${counts.total})` },
+    ];
+
     return (
         <AppLayout>
             <Head title="Antrean Review Validator" />
@@ -25,7 +25,7 @@ export default function ReviewQueue({ counts, reviews, active_filter }) {
                             Antrean Validasi Konten
                         </h1>
                         <p className="text-sm text-ink-soft mt-1">
-                            Periksa ketepatan Bahasa Pasan, soal, dan kunci jawaban sebelum disetujui.
+                            Periksa ketepatan Bahasa Pasan, soal, dan kunci jawaban sebelum disetujui untuk diterbitkan Admin.
                         </p>
                     </div>
                     <TactileButton variant="accent" href="/preview">
@@ -35,26 +35,38 @@ export default function ReviewQueue({ counts, reviews, active_filter }) {
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                    <div className="bg-accent-tint border border-accent-border rounded-[16px] p-4">
-                        <p className="text-xs font-bold uppercase text-ink-soft">Menunggu Review</p>
-                        <p className="font-display text-3xl font-bold text-ink mt-1">{counts.pending}</p>
+                    <div className="bg-accent-tint border border-accent-border rounded-[16px] p-4 space-y-1">
+                        <div className="flex items-center justify-between text-ink-soft">
+                            <span className="text-xs font-bold uppercase">Menunggu</span>
+                            <Clock className="w-4 h-4 text-ink" aria-hidden="true" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-ink">{counts.pending}</p>
                     </div>
-                    <div className="bg-success-tint border border-success rounded-[16px] p-4">
-                        <p className="text-xs font-bold uppercase text-ink-soft">Disetujui</p>
-                        <p className="font-display text-3xl font-bold text-ink mt-1">{counts.approved}</p>
+                    <div className="bg-success-tint border border-success rounded-[16px] p-4 space-y-1">
+                        <div className="flex items-center justify-between text-ink-soft">
+                            <span className="text-xs font-bold uppercase">Disetujui</span>
+                            <CheckCircle2 className="w-4 h-4 text-success" aria-hidden="true" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-ink">{counts.approved}</p>
                     </div>
-                    <div className="bg-brand-tint border border-brand rounded-[16px] p-4">
-                        <p className="text-xs font-bold uppercase text-ink-soft">Perlu Revisi</p>
-                        <p className="font-display text-3xl font-bold text-ink mt-1">{counts.changes_requested}</p>
+                    <div className="bg-brand-tint border border-brand rounded-[16px] p-4 space-y-1">
+                        <div className="flex items-center justify-between text-ink-soft">
+                            <span className="text-xs font-bold uppercase">Perlu Revisi</span>
+                            <AlertTriangle className="w-4 h-4 text-brand" aria-hidden="true" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-ink">{counts.changes_requested}</p>
                     </div>
-                    <div className="bg-surface border border-border-subtle rounded-[16px] p-4">
-                        <p className="text-xs font-bold uppercase text-ink-soft">Total Pengajuan</p>
-                        <p className="font-display text-3xl font-bold text-ink mt-1">{counts.total}</p>
+                    <div className="bg-surface border border-border-subtle rounded-[16px] p-4 space-y-1">
+                        <div className="flex items-center justify-between text-ink-soft">
+                            <span className="text-xs font-bold uppercase">Total</span>
+                            <ClipboardList className="w-4 h-4 text-ink-soft" aria-hidden="true" />
+                        </div>
+                        <p className="font-display text-3xl font-bold text-ink">{counts.total}</p>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    {TABS.map((tab) => (
+                    {tabs.map((tab) => (
                         <button
                             key={tab.key}
                             type="button"
@@ -76,11 +88,11 @@ export default function ReviewQueue({ counts, reviews, active_filter }) {
                         description="Belum ada pengajuan konten dari Admin untuk status yang dipilih."
                     />
                 ) : (
-                    <div className="bg-surface border border-border-subtle rounded-[16px] divide-y divide-border-subtle">
+                    <div className="space-y-3">
                         {reviews.map((item) => (
                             <div
                                 key={item.id}
-                                className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+                                className="bg-surface border border-border-subtle rounded-[16px] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                             >
                                 <div className="space-y-1">
                                     <div className="flex flex-wrap items-center gap-2">
@@ -89,7 +101,7 @@ export default function ReviewQueue({ counts, reviews, active_filter }) {
                                         </span>
                                         <StatusBadge status={item.status} />
                                     </div>
-                                    <p className="font-semibold text-ink">{item.title}</p>
+                                    <p className="font-display font-bold text-lg text-ink">{item.title}</p>
                                     <p className="text-xs text-ink-soft">
                                         Diajukan oleh {item.submitted_by || 'Admin'} pada {item.submitted_at}
                                     </p>

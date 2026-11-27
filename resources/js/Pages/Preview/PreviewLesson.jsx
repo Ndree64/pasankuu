@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Head, router, usePage } from '@inertiajs/react';
+import { BookOpen, RotateCcw } from 'lucide-react';
 import FocusLayout from '../../Layouts/FocusLayout';
 import TactileButton from '../../Components/UI/TactileButton';
+import StatusBadge from '../../Components/UI/StatusBadge';
 import MultipleChoice from '../../Components/Questions/MultipleChoice';
 import MatchingPairs from '../../Components/Questions/MatchingPairs';
 import FillBlank from '../../Components/Questions/FillBlank';
@@ -36,7 +38,7 @@ export default function PreviewLesson({ lesson, activities }) {
         <FocusLayout
             isPreview
             closeHref="/preview"
-            progressValue={totalSteps > 0 ? stepIndex + 1 : 1}
+            progressValue={previewResult ? totalSteps : totalSteps > 0 ? stepIndex + 1 : 1}
             progressMax={Math.max(1, totalSteps)}
             progressTone="accent"
             progressLabel={totalSteps > 0 ? `Aktivitas ${stepIndex + 1} / ${totalSteps}` : 'Kosong'}
@@ -51,62 +53,122 @@ export default function PreviewLesson({ lesson, activities }) {
                     actionHref="/preview"
                 />
             ) : previewResult ? (
-                <div className="bg-surface border border-border-subtle rounded-[20px] p-6 space-y-5 animate-slide-up">
-                    <div className="text-center space-y-2">
-                        <p className="text-xs font-bold uppercase text-ink-soft">Hasil Simulasi Pratinjau</p>
-                        <h1 className="font-display text-3xl font-bold text-ink">{previewResult.score} / 100</h1>
-                        <p className="text-sm font-semibold text-ink-soft">
-                            {previewResult.passed ? 'Lulus ambang 75' : 'Belum mencapai 75'} (tidak disimpan ke database)
-                        </p>
+                <div className="bg-surface border border-border-subtle rounded-[20px] shadow-focal p-6 sm:p-8 space-y-6 animate-slide-up">
+                    <div className="text-center space-y-3">
+                        <StatusBadge
+                            status={previewResult.passed ? 'passed' : 'failed'}
+                            labelOverride={
+                                previewResult.passed
+                                    ? 'Simulasi Lulus (Tidak Disimpan)'
+                                    : 'Simulasi Belum Lulus (Min. 75)'
+                            }
+                        />
+                        <h1 className="font-display text-4xl font-bold text-ink">{previewResult.score} / 100</h1>
                     </div>
+
                     <div className="space-y-2.5">
+                        <h2 className="font-display text-lg font-bold text-ink">Pembahasan Simulasi Soal</h2>
                         {previewResult.items.map((item, idx) => (
-                            <div key={item.question_id} className="p-3.5 rounded-[12px] bg-surface-soft border border-border-subtle">
+                            <div
+                                key={item.question_id}
+                                className="p-3.5 rounded-[12px] bg-surface-soft border border-border-subtle space-y-1"
+                            >
                                 <p className="font-semibold text-sm text-ink">
                                     {idx + 1}. {item.question_text}
                                 </p>
-                                <p className={`text-xs font-bold mt-1 ${item.is_correct ? 'text-success' : 'text-brand'}`}>
+                                <p className={`text-xs font-bold ${item.is_correct ? 'text-success' : 'text-brand'}`}>
                                     {item.is_correct ? 'Benar' : 'Belum tepat'} ({item.earned_points} / {item.max_points} poin)
                                 </p>
+                                {item.explanation && <p className="text-xs text-ink-soft">{item.explanation}</p>}
                             </div>
                         ))}
                     </div>
-                    <div className="flex justify-center gap-3">
+
+                    <div className="flex flex-wrap justify-center gap-3 pt-2">
+                        <TactileButton
+                            variant="accent"
+                            onClick={() => router.visit(`/preview/lessons/${lesson.id}`)}
+                        >
+                            <RotateCcw className="w-4 h-4" aria-hidden="true" />
+                            <span>Ulangi Simulasi</span>
+                        </TactileButton>
                         <TactileButton variant="neutral" href="/preview">
                             Kembali ke Pratinjau
                         </TactileButton>
                     </div>
                 </div>
             ) : (
-                <div className="bg-surface border border-border-subtle rounded-[20px] p-6 space-y-5">
+                <div className="space-y-6">
                     <div>
-                        <p className="text-xs font-bold uppercase text-ink-soft">{lesson.unit_title} | {lesson.title}</p>
+                        <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">
+                            {lesson.unit_title} | {lesson.title}
+                        </p>
                         <h1 className="font-display text-2xl font-bold text-ink mt-1">{current.title}</h1>
+                        {current.instruction && (
+                            <p className="text-sm text-ink-soft mt-1">{current.instruction}</p>
+                        )}
                     </div>
 
                     {current.activity_type === 'material' ? (
-                        <div className="space-y-4">
-                            <p className="text-base text-ink whitespace-pre-line">{current.material?.content || '(Materi masih kosong)'}</p>
+                        <div className="bg-surface border border-border-subtle rounded-[20px] p-6 space-y-5">
+                            <div className="flex items-center gap-2 text-brand font-bold text-sm">
+                                <BookOpen className="w-4 h-4" aria-hidden="true" />
+                                <span>Materi Singkat</span>
+                            </div>
+
+                            <p className="text-base text-ink leading-relaxed whitespace-pre-line">
+                                {current.material?.content || '(Materi sedang dilengkapi.)'}
+                            </p>
+
                             {current.material?.explanation && (
                                 <div className="p-4 rounded-[12px] bg-surface-soft border border-border-subtle text-sm text-ink-soft">
-                                    {current.material.explanation}
+                                    <strong className="text-ink">Catatan:</strong> {current.material.explanation}
+                                </div>
+                            )}
+
+                            {current.material?.vocabularies?.length > 0 && (
+                                <div className="space-y-2">
+                                    <h2 className="font-display text-base font-bold text-ink">Kosakata Kunci</h2>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {current.material.vocabularies.map((v) => (
+                                            <div key={v.id} className="p-3.5 rounded-[12px] bg-surface-soft border border-border-subtle">
+                                                <p className="font-bold text-ink">{v.pasan_word}</p>
+                                                <p className="text-sm font-semibold text-ink-soft">{v.indonesian_meaning}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {current.material?.examples?.length > 0 && (
+                                <div className="space-y-2">
+                                    <h2 className="font-display text-base font-bold text-ink">Contoh Kalimat</h2>
+                                    <div className="space-y-2">
+                                        {current.material.examples.map((ex) => (
+                                            <div key={ex.id} className="p-3.5 rounded-[12px] bg-surface-highlight border border-border-subtle">
+                                                <p className="font-bold text-ink">{ex.pasan_text}</p>
+                                                <p className="text-sm text-ink-soft">{ex.indonesian_translation}</p>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
                         </div>
                     ) : (
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             {current.questions.map((q, idx) => (
-                                <div key={q.id} className="space-y-3 pt-3 border-t border-border-subtle first:border-t-0 first:pt-0">
-                                    <p className="font-semibold text-ink">
-                                        {idx + 1}. {q.question_text}
-                                    </p>
+                                <div key={q.id} className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4">
+                                    <span className="text-xs font-bold text-ink-soft">
+                                        Soal {idx + 1} ({q.points} poin)
+                                    </span>
+                                    <p className="font-semibold text-base text-ink">{q.question_text}</p>
                                     {renderQuestion(q)}
                                 </div>
                             ))}
                         </div>
                     )}
 
-                    <div className="flex flex-wrap justify-between gap-3 pt-4 border-t border-border-subtle">
+                    <div className="flex flex-wrap justify-between gap-3 pt-2">
                         <TactileButton
                             variant="neutral"
                             disabled={stepIndex === 0}
@@ -116,8 +178,8 @@ export default function PreviewLesson({ lesson, activities }) {
                         </TactileButton>
 
                         {stepIndex < totalSteps - 1 ? (
-                            <TactileButton variant="brand" onClick={() => setStepIndex(stepIndex + 1)}>
-                                Lanjut
+                            <TactileButton variant="success" onClick={() => setStepIndex(stepIndex + 1)}>
+                                Lanjut ke Aktivitas Berikutnya
                             </TactileButton>
                         ) : (
                             <TactileButton variant="accent" onClick={handleEvaluate}>

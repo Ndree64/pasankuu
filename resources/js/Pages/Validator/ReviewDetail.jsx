@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import { ShieldAlert, CheckCircle2, AlertTriangle, Eye, AlertCircle } from 'lucide-react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { ShieldAlert, CheckCircle2, AlertTriangle, Eye, AlertCircle, ArrowLeft, BookOpen } from 'lucide-react';
 import AppLayout from '../../Layouts/AppLayout';
 import StatusBadge from '../../Components/UI/StatusBadge';
 import TactileButton from '../../Components/UI/TactileButton';
+import QuestionSummary, { questionTypeLabel } from '../../Components/UI/QuestionSummary';
 
 export default function ReviewDetail({ review, package: pkg }) {
     const [tab, setTab] = useState(pkg.type === 'lesson' ? 'materials' : 'questions');
@@ -12,18 +13,27 @@ export default function ReviewDetail({ review, package: pkg }) {
     });
 
     const isPending = review.status === 'pending';
+    const questionsList = pkg.type === 'lesson' ? pkg.activities.flatMap((a) => a.questions) : pkg.questions;
 
     return (
         <AppLayout>
             <Head title={`Periksa: ${pkg.title}`} />
 
             <div className="space-y-6">
+                <Link
+                    href="/validator"
+                    className="inline-flex items-center gap-1.5 min-h-11 text-sm font-bold text-ink-soft hover:text-ink"
+                >
+                    <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                    <span>Kembali ke Antrean Review</span>
+                </Link>
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">
                             {pkg.unit_title} | {pkg.type === 'lesson' ? 'Paket Lesson' : 'Paket Quiz Unit'} v{pkg.content_version}
                         </p>
-                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                        <div className="flex flex-wrap items-center gap-2.5 mt-1">
                             <h1 className="font-display text-2xl font-bold text-ink">{pkg.title}</h1>
                             <StatusBadge status={review.status} />
                         </div>
@@ -67,7 +77,7 @@ export default function ReviewDetail({ review, package: pkg }) {
                                 tab === 'questions' ? 'bg-brand text-white' : 'bg-surface border border-border-control text-ink-soft'
                             }`}
                         >
-                            Soal & Kunci Jawaban
+                            Soal & Kunci Jawaban ({questionsList.length})
                         </button>
                     </div>
                 )}
@@ -77,22 +87,40 @@ export default function ReviewDetail({ review, package: pkg }) {
                         {pkg.activities
                             .filter((a) => a.activity_type === 'material')
                             .map((act) => (
-                                <section key={act.id} className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-3">
-                                    <h2 className="font-display text-lg font-bold text-ink">{act.title}</h2>
-                                    <p className="text-sm text-ink whitespace-pre-line">{act.material?.content || '(Materi masih kosong)'}</p>
+                                <section key={act.id} className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4">
+                                    <div className="flex items-center gap-2 text-brand font-bold text-sm">
+                                        <BookOpen className="w-4 h-4" aria-hidden="true" />
+                                        <span>{act.title}</span>
+                                    </div>
+                                    <p className="text-base text-ink whitespace-pre-line leading-relaxed">
+                                        {act.material?.content || '(Materi masih kosong)'}
+                                    </p>
                                     {act.material?.explanation && (
-                                        <p className="p-3 rounded-[12px] bg-surface-soft text-sm text-ink-soft">
-                                            Catatan: {act.material.explanation}
-                                        </p>
+                                        <div className="p-3.5 rounded-[12px] bg-surface-soft border border-border-subtle text-sm text-ink-soft">
+                                            <strong className="text-ink">Catatan:</strong> {act.material.explanation}
+                                        </div>
                                     )}
                                     {act.material?.vocabularies?.length > 0 && (
-                                        <div className="space-y-1.5 pt-2">
+                                        <div className="space-y-2 pt-1">
                                             <p className="text-xs font-bold uppercase text-ink-soft">Kosakata</p>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                 {act.material.vocabularies.map((v) => (
                                                     <div key={v.id} className="p-3 rounded-[12px] bg-surface-soft border border-border-subtle">
                                                         <p className="font-bold text-ink">{v.pasan_word}</p>
                                                         <p className="text-sm text-ink-soft">{v.indonesian_meaning}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                    {act.material?.examples?.length > 0 && (
+                                        <div className="space-y-2 pt-1">
+                                            <p className="text-xs font-bold uppercase text-ink-soft">Contoh Kalimat</p>
+                                            <div className="space-y-2">
+                                                {act.material.examples.map((ex) => (
+                                                    <div key={ex.id} className="p-3 rounded-[12px] bg-surface-highlight border border-border-subtle">
+                                                        <p className="font-bold text-ink">{ex.pasan_text}</p>
+                                                        <p className="text-sm text-ink-soft">{ex.indonesian_translation}</p>
                                                     </div>
                                                 ))}
                                             </div>
@@ -105,21 +133,18 @@ export default function ReviewDetail({ review, package: pkg }) {
 
                 {tab === 'questions' && (
                     <div className="space-y-3">
-                        {(pkg.type === 'lesson'
-                            ? pkg.activities.flatMap((a) => a.questions)
-                            : pkg.questions
-                        ).map((q, idx) => (
-                            <div key={q.id} className="bg-surface border border-border-subtle rounded-[16px] p-4 space-y-2">
+                        {questionsList.map((q, idx) => (
+                            <div key={q.id} className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-3">
                                 <p className="text-xs font-bold text-ink-soft">
-                                    Soal #{idx + 1} | {q.question_type} | {q.points} poin
+                                    Soal #{idx + 1} | {questionTypeLabel(q.question_type)} | {q.points} poin
                                     {q.primary_lesson_title ? ` | Lesson: ${q.primary_lesson_title}` : ''}
                                 </p>
-                                <p className="font-semibold text-ink">{q.question_text}</p>
-                                <div className="p-3 rounded-[12px] bg-success-tint border border-success text-xs text-ink">
-                                    <strong>Kunci Jawaban:</strong> {JSON.stringify(q.answer_key)}
-                                </div>
+                                <p className="font-semibold text-base text-ink">{q.question_text}</p>
+                                <QuestionSummary question={q} />
                                 {q.explanation && (
-                                    <p className="text-xs text-ink-soft">Pembahasan: {q.explanation}</p>
+                                    <p className="text-xs text-ink-soft bg-surface-soft p-3 rounded-[10px]">
+                                        Pembahasan: {q.explanation}
+                                    </p>
                                 )}
                             </div>
                         ))}
@@ -127,7 +152,8 @@ export default function ReviewDetail({ review, package: pkg }) {
                 )}
 
                 {isPending && (
-                    <div className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4">
+                    <div className="bg-surface border border-border-subtle rounded-[20px] shadow-focal p-5 sm:p-6 space-y-4">
+                        <h2 className="font-display text-lg font-bold text-ink">Keputusan Validasi</h2>
                         <div>
                             <label htmlFor="review_note" className="block text-sm font-semibold text-ink mb-1.5">
                                 Catatan Validasi (wajib diisi jika meminta revisi)

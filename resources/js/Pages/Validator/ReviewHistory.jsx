@@ -25,12 +25,12 @@ export default function ReviewHistory({ history }) {
                         description="Keputusan pemeriksaan lesson maupun quiz akan tercatat otomatis di halaman ini."
                     />
                 ) : (
-                    <div className="bg-surface border border-border-subtle rounded-[16px] divide-y divide-border-subtle">
+                    <div className="space-y-3">
                         {history.map((item) => (
-                            <div key={item.id} className="p-4 space-y-1.5">
+                            <div key={item.id} className="bg-surface border border-border-subtle rounded-[16px] p-4 sm:p-5 space-y-2">
                                 <div className="flex flex-wrap items-center justify-between gap-2">
                                     <div className="flex flex-wrap items-center gap-2">
-                                        <span className="font-semibold text-ink">{item.title}</span>
+                                        <span className="font-display font-bold text-base text-ink">{item.title}</span>
                                         <StatusBadge status={item.status} />
                                     </div>
                                     <span className="text-xs text-ink-soft">{item.reviewed_at}</span>
@@ -39,7 +39,7 @@ export default function ReviewHistory({ history }) {
                                     {item.unit_title} | {item.type === 'lesson' ? 'Lesson' : 'Quiz Unit'} v{item.content_version} | Oleh {item.reviewer_name || 'Validator'}
                                 </p>
                                 {item.review_note && (
-                                    <p className="text-sm text-ink bg-surface-soft p-2.5 rounded-[10px]">
+                                    <p className="text-sm text-ink bg-surface-soft border border-border-subtle p-3 rounded-[10px]">
                                         {item.review_note}
                                     </p>
                                 )}

@@ -236,6 +236,7 @@ resources/
     │   │   ├── ErrorState.jsx          # Komponen state galat berbingkai brand
     │   │   ├── PageSkeleton.jsx        # Komponen skeleton loading berbasis surface-soft
     │   │   ├── ProgressBar.jsx         # Progress bar aksesibel (aria-valuenow)
+    │   │   ├── QuestionSummary.jsx     # Ringkasan terformat 4 tipe soal & kunci jawaban (Admin/Validator)
     │   │   ├── StatusBadge.jsx         # Lencana status (selalu ikon + teks, tidak warna saja)
     │   │   ├── TactileButton.jsx       # Tombol 3D taktil (brand, accent, success, neutral) dengan dukungan href/button
     │   │   └── WovenDivider.jsx        # Motif pemisah 3 belah ketupat tenun Pasan

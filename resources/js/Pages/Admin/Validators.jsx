@@ -36,7 +36,7 @@ export default function Validators({ validators }) {
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4"
+                    className="bg-surface border border-border-subtle rounded-[20px] shadow-focal p-5 sm:p-6 space-y-4"
                 >
                     <h2 className="font-display text-lg font-bold text-ink flex items-center gap-2">
                         <UserPlus className="w-5 h-5 text-brand" aria-hidden="true" />
@@ -54,7 +54,7 @@ export default function Validators({ validators }) {
                                 value={data.full_name}
                                 onChange={(e) => setData('full_name', e.target.value)}
                                 placeholder="Nama penutur / ahli"
-                                className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
+                                className="w-full h-12 px-3.5 rounded-[12px] border border-border-control text-sm"
                                 required
                             />
                             {errors.full_name && (
@@ -74,7 +74,7 @@ export default function Validators({ validators }) {
                                 value={data.username}
                                 onChange={(e) => setData('username', e.target.value)}
                                 placeholder="validator_pasan"
-                                className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
+                                className="w-full h-12 px-3.5 rounded-[12px] border border-border-control text-sm"
                                 required
                             />
                             {errors.username && (
@@ -94,7 +94,7 @@ export default function Validators({ validators }) {
                                 value={data.email}
                                 onChange={(e) => setData('email', e.target.value)}
                                 placeholder="Boleh dikosongkan"
-                                className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
+                                className="w-full h-12 px-3.5 rounded-[12px] border border-border-control text-sm"
                             />
                             {errors.email && (
                                 <p className="mt-1 text-xs text-brand flex items-center gap-1">
@@ -113,7 +113,7 @@ export default function Validators({ validators }) {
                                 value={data.password}
                                 onChange={(e) => setData('password', e.target.value)}
                                 placeholder="Minimal 8 karakter"
-                                className="w-full h-11 px-3 rounded-[12px] border border-border-control text-sm"
+                                className="w-full h-12 px-3.5 rounded-[12px] border border-border-control text-sm"
                                 required
                             />
                             {errors.password && (

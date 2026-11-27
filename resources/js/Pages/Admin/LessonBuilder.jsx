@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Head, router, useForm } from '@inertiajs/react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import {
     Lock,
     ArrowUp,
     ArrowDown,
+    ArrowLeft,
     Plus,
     Trash2,
     Send,
@@ -15,6 +16,8 @@ import {
 import AppLayout from '../../Layouts/AppLayout';
 import StatusBadge from '../../Components/UI/StatusBadge';
 import TactileButton from '../../Components/UI/TactileButton';
+import EmptyState from '../../Components/UI/EmptyState';
+import QuestionSummary, { questionTypeLabel } from '../../Components/UI/QuestionSummary';
 import QuestionEditor from '../../Components/Admin/QuestionEditor';
 
 function MaterialEditor({ activity, disabled }) {
@@ -238,6 +241,14 @@ export default function LessonBuilder({ lesson, activities, is_locked, reviews }
             <Head title={`Builder: ${lesson.title}`} />
 
             <div className="space-y-6">
+                <Link
+                    href="/admin/units"
+                    className="inline-flex items-center gap-1.5 min-h-11 text-sm font-bold text-ink-soft hover:text-ink"
+                >
+                    <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                    <span>Kembali ke Daftar Unit & Lesson</span>
+                </Link>
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                         <p className="text-xs font-bold uppercase tracking-wider text-ink-soft">
@@ -330,7 +341,6 @@ export default function LessonBuilder({ lesson, activities, is_locked, reviews }
 
                 {activeTab === 'content' && (
                     <div className="space-y-6">
-                        {/* Identitas Lesson */}
                         <form
                             onSubmit={(e) => {
                                 e.preventDefault();
@@ -388,145 +398,157 @@ export default function LessonBuilder({ lesson, activities, is_locked, reviews }
                             </div>
                         </form>
 
-                        {/* Daftar Aktivitas & Isinya */}
-                        {activities.map((activity) => (
-                            <section
-                                key={activity.id}
-                                className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4"
-                            >
-                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2.5">
-                                        {activity.activity_type === 'material' ? (
-                                            <BookOpen className="w-5 h-5 text-brand" aria-hidden="true" />
-                                        ) : (
-                                            <HelpCircle className="w-5 h-5 text-accent-lip" aria-hidden="true" />
-                                        )}
-                                        <div>
-                                            <span className="text-xs font-bold uppercase text-ink-soft">
-                                                Aktivitas {activity.order_number}: {activity.activity_type === 'material' ? 'Materi' : 'Latihan'}
-                                            </span>
-                                            <h3 className="font-display text-lg font-bold text-ink">{activity.title}</h3>
-                                        </div>
-                                    </div>
-                                    <button
-                                        type="button"
-                                        disabled={is_locked}
-                                        onClick={() => router.delete(`/admin/activities/${activity.id}`)}
-                                        className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] text-xs font-bold text-brand hover:bg-brand-tint disabled:opacity-40"
-                                    >
-                                        <Trash2 className="w-4 h-4" aria-hidden="true" />
-                                        Hapus Aktivitas
-                                    </button>
-                                </div>
-
-                                {activity.activity_type === 'material' ? (
-                                    <MaterialEditor activity={activity} disabled={is_locked} />
-                                ) : (
-                                    <div className="space-y-3 pt-3 border-t border-border-subtle">
-                                        {activity.questions.map((q) => (
-                                            <div key={q.id} className="p-4 rounded-[12px] bg-surface-soft border border-border-subtle space-y-2">
-                                                <div className="flex flex-wrap items-center justify-between gap-2">
-                                                    <span className="text-xs font-bold text-ink-soft">
-                                                        Soal #{q.order_number} | {q.question_type} | {q.points} poin
-                                                    </span>
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            type="button"
-                                                            disabled={is_locked}
-                                                            onClick={() => setEditingQuestion(editingQuestion?.id === q.id ? null : q)}
-                                                            className="min-h-11 px-3 rounded-[10px] border border-border-control bg-surface text-xs font-bold text-ink"
-                                                        >
-                                                            Ubah
-                                                        </button>
-                                                        <button
-                                                            type="button"
-                                                            disabled={is_locked}
-                                                            onClick={() => router.delete(`/admin/lesson-questions/${q.id}`)}
-                                                            className="min-h-11 px-3 rounded-[10px] bg-brand-tint text-xs font-bold text-brand"
-                                                        >
-                                                            Hapus
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                                <p className="font-semibold text-ink text-sm">{q.question_text}</p>
-                                                {editingQuestion?.id === q.id && (
-                                                    <QuestionEditor
-                                                        initialQuestion={q}
-                                                        disabled={is_locked}
-                                                        onCancel={() => setEditingQuestion(null)}
-                                                        onSubmit={(payload) => {
-                                                            router.put(`/admin/lesson-questions/${q.id}`, payload, {
-                                                                onSuccess: () => setEditingQuestion(null),
-                                                            });
-                                                        }}
-                                                    />
-                                                )}
+                        {activities.length === 0 ? (
+                            <EmptyState
+                                title="Lesson belum memiliki aktivitas"
+                                description="Tambahkan aktivitas Materi Singkat atau Latihan Interaktif pada tab Urutan Aktivitas."
+                                actionLabel="Buka Tab Urutan Aktivitas"
+                                onAction={() => setActiveTab('order')}
+                            />
+                        ) : (
+                            activities.map((activity) => (
+                                <section
+                                    key={activity.id}
+                                    className="bg-surface border border-border-subtle rounded-[16px] p-5 space-y-4"
+                                >
+                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                        <div className="flex items-center gap-2.5">
+                                            {activity.activity_type === 'material' ? (
+                                                <BookOpen className="w-5 h-5 text-brand" aria-hidden="true" />
+                                            ) : (
+                                                <HelpCircle className="w-5 h-5 text-accent-lip" aria-hidden="true" />
+                                            )}
+                                            <div>
+                                                <span className="text-xs font-bold uppercase text-ink-soft">
+                                                    Aktivitas {activity.order_number}: {activity.activity_type === 'material' ? 'Materi' : 'Latihan'}
+                                                </span>
+                                                <h3 className="font-display text-lg font-bold text-ink">{activity.title}</h3>
                                             </div>
-                                        ))}
-
-                                        {addingQuestionFor === activity.id ? (
-                                            <QuestionEditor
-                                                disabled={is_locked}
-                                                onCancel={() => setAddingQuestionFor(null)}
-                                                onSubmit={(payload) => {
-                                                    router.post(`/admin/activities/${activity.id}/questions`, payload, {
-                                                        onSuccess: () => setAddingQuestionFor(null),
-                                                    });
-                                                }}
-                                            />
-                                        ) : (
-                                            <TactileButton
-                                                variant="neutral"
-                                                disabled={is_locked}
-                                                onClick={() => setAddingQuestionFor(activity.id)}
-                                            >
-                                                <Plus className="w-4 h-4" aria-hidden="true" />
-                                                <span>Tambah Soal Latihan</span>
-                                            </TactileButton>
-                                        )}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            disabled={is_locked}
+                                            onClick={() => router.delete(`/admin/activities/${activity.id}`)}
+                                            className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] text-xs font-bold text-brand hover:bg-brand-tint disabled:opacity-40"
+                                        >
+                                            <Trash2 className="w-4 h-4" aria-hidden="true" />
+                                            Hapus Aktivitas
+                                        </button>
                                     </div>
-                                )}
-                            </section>
-                        ))}
+
+                                    {activity.activity_type === 'material' ? (
+                                        <MaterialEditor activity={activity} disabled={is_locked} />
+                                    ) : (
+                                        <div className="space-y-3 pt-3 border-t border-border-subtle">
+                                            {activity.questions.map((q) => (
+                                                <div key={q.id} className="p-4 rounded-[12px] bg-surface-soft border border-border-subtle space-y-3">
+                                                    <div className="flex flex-wrap items-center justify-between gap-2">
+                                                        <span className="text-xs font-bold text-ink-soft">
+                                                            Soal #{q.order_number} | {questionTypeLabel(q.question_type)} | {q.points} poin
+                                                        </span>
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                type="button"
+                                                                disabled={is_locked}
+                                                                onClick={() => setEditingQuestion(editingQuestion?.id === q.id ? null : q)}
+                                                                className="min-h-11 px-3 rounded-[10px] border border-border-control bg-surface text-xs font-bold text-ink"
+                                                            >
+                                                                Ubah
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                disabled={is_locked}
+                                                                onClick={() => router.delete(`/admin/lesson-questions/${q.id}`)}
+                                                                className="min-h-11 px-3 rounded-[10px] bg-brand-tint text-xs font-bold text-brand"
+                                                            >
+                                                                Hapus
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <p className="font-semibold text-ink text-sm">{q.question_text}</p>
+                                                    <QuestionSummary question={q} />
+
+                                                    {editingQuestion?.id === q.id && (
+                                                        <QuestionEditor
+                                                            initialQuestion={q}
+                                                            disabled={is_locked}
+                                                            onCancel={() => setEditingQuestion(null)}
+                                                            onSubmit={(payload) => {
+                                                                router.put(`/admin/lesson-questions/${q.id}`, payload, {
+                                                                    onSuccess: () => setEditingQuestion(null),
+                                                                });
+                                                            }}
+                                                        />
+                                                    )}
+                                                </div>
+                                            ))}
+
+                                            {addingQuestionFor === activity.id ? (
+                                                <QuestionEditor
+                                                    disabled={is_locked}
+                                                    onCancel={() => setAddingQuestionFor(null)}
+                                                    onSubmit={(payload) => {
+                                                        router.post(`/admin/activities/${activity.id}/questions`, payload, {
+                                                            onSuccess: () => setAddingQuestionFor(null),
+                                                        });
+                                                    }}
+                                                />
+                                            ) : (
+                                                <TactileButton
+                                                    variant="neutral"
+                                                    disabled={is_locked}
+                                                    onClick={() => setAddingQuestionFor(activity.id)}
+                                                >
+                                                    <Plus className="w-4 h-4" aria-hidden="true" />
+                                                    <span>Tambah Soal Latihan</span>
+                                                </TactileButton>
+                                            )}
+                                        </div>
+                                    )}
+                                </section>
+                            ))
+                        )}
                     </div>
                 )}
 
                 {activeTab === 'order' && (
                     <div className="space-y-5">
-                        <div className="bg-surface border border-border-subtle rounded-[16px] divide-y divide-border-subtle">
-                            {activities.map((activity, idx) => (
-                                <div key={activity.id} className="p-4 flex items-center justify-between gap-3">
-                                    <div>
-                                        <span className="text-xs font-bold uppercase text-ink-soft">
-                                            #{activity.order_number} ({activity.activity_type === 'material' ? 'Materi' : 'Latihan'})
-                                        </span>
-                                        <p className="font-semibold text-ink">{activity.title}</p>
+                        {activities.length > 0 && (
+                            <div className="bg-surface border border-border-subtle rounded-[16px] divide-y divide-border-subtle">
+                                {activities.map((activity, idx) => (
+                                    <div key={activity.id} className="p-4 flex items-center justify-between gap-3">
+                                        <div>
+                                            <span className="text-xs font-bold uppercase text-ink-soft">
+                                                #{activity.order_number} ({activity.activity_type === 'material' ? 'Materi' : 'Latihan'})
+                                            </span>
+                                            <p className="font-semibold text-ink">{activity.title}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                disabled={is_locked || idx === 0}
+                                                onClick={() => moveActivity(idx, -1)}
+                                                aria-label={`Naikkan ${activity.title}`}
+                                                className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] border border-border-control bg-surface text-xs font-bold disabled:opacity-40"
+                                            >
+                                                <ArrowUp className="w-4 h-4" aria-hidden="true" />
+                                                <span>Naik</span>
+                                            </button>
+                                            <button
+                                                type="button"
+                                                disabled={is_locked || idx === activities.length - 1}
+                                                onClick={() => moveActivity(idx, 1)}
+                                                aria-label={`Turunkan ${activity.title}`}
+                                                className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] border border-border-control bg-surface text-xs font-bold disabled:opacity-40"
+                                            >
+                                                <ArrowDown className="w-4 h-4" aria-hidden="true" />
+                                                <span>Turun</span>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            type="button"
-                                            disabled={is_locked || idx === 0}
-                                            onClick={() => moveActivity(idx, -1)}
-                                            aria-label={`Naikkan ${activity.title}`}
-                                            className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] border border-border-control bg-surface text-xs font-bold disabled:opacity-40"
-                                        >
-                                            <ArrowUp className="w-4 h-4" aria-hidden="true" />
-                                            <span>Naik</span>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            disabled={is_locked || idx === activities.length - 1}
-                                            onClick={() => moveActivity(idx, 1)}
-                                            aria-label={`Turunkan ${activity.title}`}
-                                            className="inline-flex items-center gap-1 min-h-11 px-3 rounded-[12px] border border-border-control bg-surface text-xs font-bold disabled:opacity-40"
-                                        >
-                                            <ArrowDown className="w-4 h-4" aria-hidden="true" />
-                                            <span>Turun</span>
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                        )}
 
                         <form
                             onSubmit={(e) => {
