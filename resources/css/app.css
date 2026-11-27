@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source "../../storage/framework/views/*.php";
+@source "../js/**/*.jsx";
+
+@theme {
+    --color-canvas: #FFF9F0;
+    --color-surface: #FFFFFF;
+    --color-surface-soft: #FAF2E6;
+    --color-surface-highlight: #FDF3E3;
+    --color-border-subtle: #EFE4D4;
+    --color-border-control: #D9C5AD;
+    --color-ink: #4A1F0C;
+    --color-ink-soft: #6E4735;
+    --color-brand: #C92A2A;
+    --color-brand-lip: #9E1F1F;
+    --color-brand-tint: #FDF0F0;
+    --color-accent: #F5A623;
+    --color-accent-lip: #B36B00;
+    --color-accent-border: #C97E0A;
+    --color-accent-tint: #FFF4DE;
+    --color-success: #2B7A4B;
+    --color-success-lip: #1E5C37;
+    --color-success-tint: #EEF7F1;
+    --color-locked: #E5DACB;
+
+    --font-display: "Candara", "Trebuchet MS", "Segoe UI", sans-serif;
+    --font-body: "Segoe UI", system-ui, -apple-system, sans-serif;
+
+    --radius-chip: 8px;
+    --radius-control: 12px;
+    --radius-card: 16px;
+    --radius-panel: 20px;
+
+    --shadow-focal: 0 4px 12px rgb(74 31 12 / 0.07);
+}
+
+@layer base {
+    html {
+        color-scheme: light;
+    }
+
+    body {
+        background-color: var(--color-canvas);
+        color: var(--color-ink);
+        font-family: var(--font-body);
+    }
+
+    h1, h2, h3, .font-display {
+        font-family: var(--font-display);
+    }
+
+    a[href],
+    button:not(:disabled),
+    summary,
+    select:not(:disabled),
+    label[for],
+    input[type="checkbox"]:not(:disabled),
+    input[type="radio"]:not(:disabled),
+    [role="button"]:not([aria-disabled="true"]),
+    [role="tab"]:not([aria-disabled="true"]) {
+        cursor: pointer;
+    }
+
+    button:disabled,
+    select:disabled,
+    input:disabled,
+    [aria-disabled="true"] {
+        cursor: not-allowed;
+    }
+
+    :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+        outline: 2px solid var(--color-brand);
+        outline-offset: 2px;
+    }
+}
+
+.tactile-brand {
+    background-color: var(--color-brand);
+    color: #FFFFFF;
+    box-shadow: 0 4px 0 var(--color-brand-lip);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.tactile-brand:hover:not(:disabled) {
+    filter: brightness(1.03);
+}
+.tactile-brand:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--color-brand-lip);
+}
+
+.tactile-accent {
+    background-color: var(--color-accent);
+    color: var(--color-ink);
+    box-shadow: 0 4px 0 var(--color-accent-lip);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.tactile-accent:hover:not(:disabled) {
+    filter: brightness(1.03);
+}
+.tactile-accent:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--color-accent-lip);
+}
+
+.tactile-success {
+    background-color: var(--color-success);
+    color: #FFFFFF;
+    box-shadow: 0 4px 0 var(--color-success-lip);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.tactile-success:hover:not(:disabled) {
+    filter: brightness(1.03);
+}
+.tactile-success:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--color-success-lip);
+}
+
+.tactile-neutral {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    border: 1px solid var(--color-border-control);
+    box-shadow: 0 4px 0 var(--color-border-control);
+    transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.tactile-neutral:hover:not(:disabled) {
+    background-color: var(--color-surface-soft);
+}
+.tactile-neutral:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 var(--color-border-control);
+}
+
+.tactile-locked {
+    background-color: var(--color-locked);
+    color: var(--color-ink-soft);
+    box-shadow: 0 4px 0 var(--color-border-control);
+}
+
+@keyframes slideUpFeedback {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-slide-up {
+    animation: slideUpFeedback 200ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
